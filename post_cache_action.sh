@@ -21,20 +21,26 @@ cache_hit="${3}"
 # Cache and execute post install scripts on restore.
 execute_install_scripts="${4}"
 
+# Don't install recommended packages.
+no_install_recommends="${5}"
+
+# Don't upgrade existing packages.
+no_upgrade="${6}"
+
 # Debug mode for diagnosing issues.
-debug="${5}"
+debug="${7}"
 test "${debug}" = "true" && set -x
 
 # Repositories to add before installing packages.
-add_repository="${6}"
+add_repository="${8}"
 
 # List of the packages to use.
-packages="${@:7}"
+packages="${@:9}"
 
 if test "${cache_hit}" = "true"; then
   ${script_dir}/restore_pkgs.sh "${cache_dir}" "${cache_restore_root}" "${execute_install_scripts}" "${debug}"
 else
-  ${script_dir}/install_and_cache_pkgs.sh "${cache_dir}" "${debug}" "${add_repository}" ${packages}
+  ${script_dir}/install_and_cache_pkgs.sh "${cache_dir}" "${debug}" "${no_install_recommends}" "${no_upgrade}" "${add_repository}" ${packages}
 fi
 
 log_empty_line

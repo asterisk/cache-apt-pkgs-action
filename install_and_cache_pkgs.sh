@@ -15,11 +15,17 @@ source "${script_dir}/lib.sh"
 # Directory that holds the cached packages.
 cache_dir="${1}"
 
+# Don't install recommended packages.
+no_install_recommends="${3}"
+
+# Don't upgrade existing packages.
+no_upgrade="${4}"
+
 # Repositories to add before installing packages.
-add_repository="${3}"
+add_repository="${5}"
 
 # List of the packages to use.
-input_packages="${@:4}"
+input_packages="${@:6}"
 
 if ! apt-fast --version > /dev/null 2>&1; then
   log "Installing apt-fast for optimized installs..."
@@ -69,9 +75,17 @@ manifest_all=""
 
 install_log_filepath="${cache_dir}/install.log"
 
+declare -a apt_options
+if test "${no_install_recommends}" = "true" ; then
+  apt_options+=( "--no-install-recommends" )
+fi
+if test "${no_upgrade}" = "true" ; then
+  apt_options+=( "--no-upgrade" )
+fi
+
 log "Clean installing ${package_count} packages..."
 # Zero interaction while installing or upgrading the system via apt.
-sudo DEBIAN_FRONTEND=noninteractive apt-fast --yes install ${packages} > "${install_log_filepath}"
+sudo DEBIAN_FRONTEND=noninteractive apt-fast --yes install ${apt_options[@]} ${packages} > "${install_log_filepath}"
 log "done"
 log "Installation log written to ${install_log_filepath}"
 

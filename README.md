@@ -39,6 +39,8 @@ Please note that the `latest` symbol has been deprecated and will no longer be u
 - `packages` - Space delimited list of packages to install.
 - `version` - Version of cache to load. Each version will have its own cache. Note, all characters except spaces are allowed.
 - `execute_install_scripts` - Execute Debian package pre and post install script upon restore. See [Caveats / Non-file Dependencies](#non-file-dependencies) for more information.
+- `no_install_recommends` - Add the `--no-install-recommends` option to the `apt install` command for cache creation to prevent automatic installation of recommended packages.
+- `no_upgrade` - Add the `--no-upgrade` option to the `apt install` command for cache creation to prevent automatic upgrade of existing packages.
 - `empty_packages_behavior` - Desired behavior when the given `packages` is empty. `'error'` (default), `'warn'` or `'ignore'`.
 - `add-repository` - Space delimited list of repositories to add via `apt-add-repository` before installing packages. Supports PPA (e.g., `ppa:user/repo`) and other repository formats.
 

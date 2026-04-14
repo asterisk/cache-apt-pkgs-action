@@ -18,6 +18,14 @@ inputs:
     description: "Execute Debian package pre and post install script upon restore. See README.md caveats for more information."
     required: false
     default: "false"
+  no_install_recommends:
+    description: "Don't install recommended packages when creating new cache."
+    required: false
+    default: "false"
+  no_upgrade:
+    description: "Don't upgrade existing packages when creating new cache."
+    required: false
+    default: "false"
   empty_packages_behavior:
     description: >
       Desired behavior when the provided package list is empty.
@@ -94,6 +102,8 @@ runs:
           / \
           "$CACHE_HIT" \
           "$EXEC_INSTALL_SCRIPTS" \
+          "$NO_INSTALL_RECOMMENDS" \
+          "$NO_UPGRADE" \
           "$DEBUG" \
           "$ADD_REPOSITORY" \
           "$PACKAGES"
@@ -104,6 +114,8 @@ runs:
       env:
         CACHE_HIT: "${{ steps.load-cache.outputs.cache-hit }}"
         EXEC_INSTALL_SCRIPTS: "${{ inputs.execute_install_scripts }}"
+        NO_INSTALL_RECOMMENDS: "${{ inputs.no_install_recommends }}"
+        NO_UPGRADE: "${{ inputs.no_upgrade }}"
         DEBUG: "${{ inputs.debug }}"
         ADD_REPOSITORY: "${{ inputs.add-repository }}"
         PACKAGES: "${{ inputs.packages }}"
