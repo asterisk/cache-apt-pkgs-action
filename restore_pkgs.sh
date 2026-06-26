@@ -46,12 +46,24 @@ mapfile -t packages <"${manifest_all}"
 cached_filecount="${#packages[@]}"
 log "Restoring ${cached_filecount} packages from cache..."
 
+restore_dpkg_status() {
+  echo "" >> "${1}/var/lib/dpkg/status"
+  cat "${1}/var/tmp/dpkg-restore/${2}.status" >> "${1}/var/lib/dpkg/status"
+}
+
 for package in "${packages[@]}"; do
   cached_filepath="${cache_dir}/${package}.tar"
   log "- ${package} restoring..."
   sudo tar -xf "${cached_filepath}" -C "${cache_restore_root}" > /dev/null
-  log "  done"
 
+  package_name="${package%%=*}"
+  if test -f "${cache_restore_root}/var/tmp/dpkg-restore/${package_name}.status" ; then
+    sudo bash -c "$(declare -f restore_dpkg_status); restore_dpkg_status ${cache_restore_root} ${package_name} ;"
+  else
+    log "Status file ${cache_restore_root}/var/tmp/dpkg-restore/${package_name}.status not found"
+  fi
+  log "  done"
+ 
   # Execute install scripts if available.    
   if test ${execute_install_scripts} == "true"; then
     # May have to add more handling for extracting pre-install script before extracting all files.

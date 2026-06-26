@@ -22,9 +22,10 @@ function execute_install_script {
     get_install_script_filepath "${1}" "${package_name}" "${3}")
   if test ! -z "${install_script_filepath}"; then
     log "- Executing ${install_script_filepath}..."
-    # Don't abort on errors; dpkg-trigger will error normally since it is
-    # outside its run environment.
-    sudo sh -x ${install_script_filepath} ${4} || true
+    # Don't abort on errors; dpkg-trigger may error normally since it is
+    # outside its run environment.  We'll set DPKG_MAINTSCRIPT_NAME though
+    # to increase the odds of success. 
+    sudo DPKG_MAINTSCRIPT_NAME="${3}" sh -x "${install_script_filepath}" "${4}" || true
     log "  done"
   fi
 }
@@ -44,6 +45,11 @@ function get_install_script_filepath {
     ls -1 ${1}var/lib/dpkg/info/${2}*.${3} 2> /dev/null \
     | grep -E ${2}'(:.*)?.'${3} | head -1 || true)"
   test "${filepath}" && echo "${filepath}"
+}
+
+function get_install_script_filepaths {
+  # Filename includes arch (e.g. amd64).
+  ls -1 ${1}var/lib/dpkg/info/${2}:*.* ${1}var/lib/dpkg/info/${2}.* 2> /dev/null
 }
 
 ###############################################################################

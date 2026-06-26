@@ -110,11 +110,14 @@ for installed_package in ${installed_packages}; do
     read package_name package_ver < <(get_package_name_ver "${installed_package}")
     log "  * Caching ${package_name} to ${cache_filepath}..."
 
+    # Get the entry in /var/lib/dpkg/status
+    mkdir -p /var/tmp/dpkg-restore || :
+    sed -n -r -e "/Package:\s+${package_name}$/,/^$/p" /var/lib/dpkg/status > /var/tmp/dpkg-restore/${package_name}.status
+    
     # Pipe all package files (no folders), including symlinks, their targets, and installation control data to Tar.
     tar -cf "${cache_filepath}" -C / --verbatim-files-from --files-from <(
-      { dpkg -L "${package_name}" &&
-        { get_install_script_filepath "/" "${package_name}" "preinst" ;
-        get_install_script_filepath "/" "${package_name}" "postinst" ; } ; } |
+      { dpkg -L "${package_name}" && echo "/var/tmp/dpkg-restore/${package_name}.status" &&
+        get_install_script_filepaths "/" "${package_name}" ; } |
       while IFS= read -r f; do
         if test -f "${f}" -o -L "${f}"; then
           get_tar_relpath "${f}"
