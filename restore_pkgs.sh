@@ -25,16 +25,20 @@ execute_install_scripts="${3}"
 
 cache_filepaths="$(ls -1 "${cache_dir}" | sort)"
 log "Found $(echo ${cache_filepaths} | wc -w) files in the cache."
-for cache_filepath in ${cache_filepaths}; do
-  log "- "$(basename ${cache_filepath})""
-done
+if test "${debug}" == "true" ; then
+  for cache_filepath in ${cache_filepaths}; do
+    log "- $(basename ${cache_filepath})"
+  done
+fi
 
 log_empty_line
 
 log "Reading from main requested packages manifest..."
-for logline in $(cat "${cache_dir}/manifest_main.log" | tr ',' '\n' ); do
-  log "- $(echo "${logline}" | tr ':' ' ')"
-done
+if test "${debug}" == "true" ; then
+  for logline in $(cat "${cache_dir}/manifest_main.log" | tr ',' '\n' ); do
+    log "- $(echo "${logline}" | tr ':' ' ')"
+  done
+fi
 log "done"
 
 log_empty_line
@@ -53,7 +57,7 @@ restore_dpkg_status() {
 
 for package in "${packages[@]}"; do
   cached_filepath="${cache_dir}/${package}.tar"
-  log "- ${package} restoring..."
+  log_debug "- ${package} restoring..."
   sudo tar -xf "${cached_filepath}" -C "${cache_restore_root}" > /dev/null
 
   package_name="${package%%=*}"
@@ -62,7 +66,7 @@ for package in "${packages[@]}"; do
   else
     log "Status file ${cache_restore_root}/var/tmp/dpkg-restore/${package_name}.status not found"
   fi
-  log "  done"
+  log_debug "  done"
  
   # Execute install scripts if available.    
   if test ${execute_install_scripts} == "true"; then

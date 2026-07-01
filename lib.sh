@@ -20,13 +20,17 @@ function execute_install_script {
   local package_name=$(basename ${2} | awk -F\= '{print $1}')  
   local install_script_filepath=$(\
     get_install_script_filepath "${1}" "${package_name}" "${3}")
+  echocmd=""
   if test ! -z "${install_script_filepath}"; then
-    log "- Executing ${install_script_filepath}..."
+    if [ "${debug}" == "true" ] ; then
+        log "- Executing ${install_script_filepath}..."
+        echocmd="-x"
+    fi
     # Don't abort on errors; dpkg-trigger may error normally since it is
     # outside its run environment.  We'll set DPKG_MAINTSCRIPT_NAME though
     # to increase the odds of success. 
-    sudo DPKG_MAINTSCRIPT_NAME="${3}" sh -x "${install_script_filepath}" "${4}" || true
-    log "  done"
+    sudo DPKG_MAINTSCRIPT_NAME="${3}" sh ${echocmd} "${install_script_filepath}" "${4}" || true
+    log_debug "  done"
   fi
 }
 
@@ -175,6 +179,7 @@ function log { echo "${@}"; }
 function log_err { >&2 echo "${@}"; }
 
 function log_empty_line { echo ""; }
+function log_debug { test "${debug}" == "true" && echo "${@}" || : ; }
 
 ###############################################################################
 # Validates an argument to be of a boolean value.

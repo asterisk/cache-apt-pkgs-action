@@ -59,10 +59,10 @@ log "Clean installing and caching ${package_count} package(s)."
 log_empty_line
 
 manifest_main=""
-log "Package list:"
+log_debug "Package list:"
 for package in ${packages}; do
   manifest_main="${manifest_main}${package},"
-  log "- ${package}"
+  log_debug "- ${package}"
 done
 write_manifest "main" "${manifest_main}" "${cache_dir}/manifest_main.log"
 
@@ -92,11 +92,13 @@ log "Installation log written to ${install_log_filepath}"
 log_empty_line
 
 installed_packages=$(get_installed_packages "${install_log_filepath}")
-log "Installed package list:"
-for installed_package in ${installed_packages}; do
-  # Reformat for human friendly reading.  
-  log "- $(echo ${installed_package} | awk -F\= '{print $1" ("$2")"}')"
-done
+if [ "${debug}" == "true" ] ; then
+  log "Installed package list:"
+  for installed_package in ${installed_packages}; do
+    # Reformat for human friendly reading.  
+    log "- $(echo ${installed_package} | awk -F\= '{print $1" ("$2")"}')"
+  done
+fi
 
 log_empty_line
 
@@ -108,7 +110,7 @@ for installed_package in ${installed_packages}; do
   # Sanity test in case APT enumerates duplicates.
   if test ! -f "${cache_filepath}"; then
     read package_name package_ver < <(get_package_name_ver "${installed_package}")
-    log "  * Caching ${package_name} to ${cache_filepath}..."
+    log_debug "  * Caching ${package_name} to ${cache_filepath}..."
 
     # Get the entry in /var/lib/dpkg/status
     mkdir -p /var/tmp/dpkg-restore || :
@@ -131,7 +133,7 @@ for installed_package in ${installed_packages}; do
       done
     )
 
-    log "    done (compressed size $(du -h "${cache_filepath}" | cut -f1))."
+    log_debug "    done (compressed size $(du -h "${cache_filepath}" | cut -f1))."
   fi
 
   # Comma delimited name:ver pairs in the all packages manifest.

@@ -42,7 +42,7 @@ log "done"
 # Create cache directory so artifacts can be saved.
 mkdir -p ${cache_dir}
 
-log "Validating action arguments (version='${version}', packages='${packages}')...";
+log_debug "Validating action arguments (version='${version}', packages='${packages}')...";
 if grep -q " " <<< "${version}"; then
   log "aborted" 
   log "Version value '${version}' cannot contain spaces." >&2
@@ -115,7 +115,7 @@ if [ "${cpu_arch}" != "x86_64" ]; then
   log "- Architecture '${cpu_arch}' added to value."
 fi
 
-log "- Value to hash is '${value}'."
+log_debug "- Value to hash is '${value}'."
 
 key="$(echo "${value}" | md5sum | cut -f1 -d' ')"
 log "- Value hashed as '${key}'."
