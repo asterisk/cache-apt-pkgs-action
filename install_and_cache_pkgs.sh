@@ -85,7 +85,8 @@ fi
 
 log "Clean installing ${package_count} packages..."
 # Zero interaction while installing or upgrading the system via apt.
-sudo DEBIAN_FRONTEND=noninteractive apt-fast --yes install ${apt_options[@]} ${packages} > "${install_log_filepath}"
+sudo DEBIAN_FRONTEND=noninteractive apt-get update -y -qq
+sudo DEBIAN_FRONTEND=noninteractive apt-get --yes install ${apt_options[@]} ${packages} > "${install_log_filepath}"
 log "done"
 log "Installation log written to ${install_log_filepath}"
 
